@@ -1,16 +1,18 @@
 
-var geoEncode = function(city) {
-    // this function takes the 
+var fetchGeoData = function(city) {
+    // this function fetches geographic information based on what city the user searched for
     apiUrl = `https://us1.locationiq.com/v1/search.php?key=d743f42fb07378&q=${city}&format=json&countrycodes=us&limit=1&addressdetails=1`;
     fetch(apiUrl)
     .then(function(response){
         if (response.ok) {
             response.json().then(function(data){
+                console.log(data)
                 fetchCovidData(data[0].address)
+                fetchWeatherData(data[0].lat,data[0].lon)
             })
         }
         else {
-            // alert will be replaced with better feedback later
+            // alert will be replaced with better user feedback later
             alert("Search was not successful.")
         }
     });
@@ -24,7 +26,7 @@ var fetchCovidData = function(geoData) {
     .then(function(response){
         if (response.ok) {
             response.json().then(function(stateCovidData){
-                // the API fetch returns covid data for every county in the state, we need to fish out the 
+                // the API fetch returns covid data for every county in a state, we need to fish out the 
                 // specific county for the city that the user searched for
                 var countyCovidData = null
                 for(i=0;i<stateCovidData.length;i++) {
@@ -51,10 +53,25 @@ var fetchCovidData = function(geoData) {
             })
         }
         else {
-            // alert will be replaced with better feedback later
-            alert("Search was not successful.")
+            // alert will be replaced with better user feedback later
+            alert("Could not fetch covid information.")
         }
     });
-}
+};
 
-
+var fetchWeatherData = function(lat,lon) {
+    // takes the latitude and longitude from the geo encoding call and uses them to fetch weather data
+    apiUrl = `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&exclude=minutely,hourly&units=imperial&appid=d1cd3159572faa76d674791448dcb10b`;
+    fetch(apiUrl)
+    .then(function(response){
+        if (response.ok) {
+            response.json().then(function(data){
+                console.log(data)
+            })
+        }
+        else {
+            // alert will be replaced with better user feedback later
+            alert("There was a problem fetching the weather data.")
+        }
+    });
+};
