@@ -6,7 +6,12 @@ var fetchGeoData = function(city) {
         if (response.ok) {
             response.json().then(function(data){
                 console.log(data)
-                $("#city-holder").text(data[0].address.city + "," + data[0].address.state)
+                // check if they searched for DC, adjust data if so
+                if (data[0].address.state === "Washington, D.C.") {
+                    data[0].address.state = "District of Columbia"
+                    data[0].address.county = "District of Columbia"
+                }
+                $("#city-holder").text(data[0].address.city + ", " + data[0].address.state)
                 fetchCovidData(data[0].address)
                 fetchWeatherData(data[0].lat,data[0].lon)
             })
@@ -18,8 +23,6 @@ var fetchGeoData = function(city) {
     });
 };
 var fetchCovidData = function(geoData) {
-    // will need a check to see  if the state is DC here later
-    // url would be https://disease.sh/v3/covid-19/historical/usacounties/district%20of%20columbia?lastdays=7
     apiUrl = `https://disease.sh/v3/covid-19/historical/usacounties/${geoData.state.toLowerCase()}?lastdays=7`
     fetch(apiUrl)
     .then(function(response){
