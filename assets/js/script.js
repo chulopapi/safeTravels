@@ -1,12 +1,12 @@
 var fetchGeoData = function(city) {
     // this function fetches geographic information based on what city the user searched for
-    apiUrl = `https://us1.locationiq.com/v1/search.php?key=d743f42fb07378&q=${city}&format=json&countrycodes=us&limit=1&addressdetails=1`;
+    apiUrl = `https://us1.locationiq.com/v1/search.php?key=d743f42fb07378&city=${city}&format=json&countrycodes=us&limit=1&addressdetails=1`;
     fetch(apiUrl)
     .then(function(response){
         if (response.ok) {
             response.json().then(function(data){
                 console.log(data)
-                $("#city-holder").text(data[0].address.city)
+                $("#city-holder").text(data[0].address.city + "," + data[0].address.state)
                 fetchCovidData(data[0].address)
                 fetchWeatherData(data[0].lat,data[0].lon)
             })
@@ -47,6 +47,13 @@ var fetchCovidData = function(geoData) {
                 var newCases = Math.max(...cases) - Math.min(...cases)
                 var newDeaths = Math.max(...deaths) - Math.min(...deaths)
                 // we're just logging the info for now, later we'll set this up to display on the page
+                $("#covid-results").html(
+                    `
+                    <h6 class="center"> Showing results for <span class ="bold">${geoData.county}</span></h6>
+                    <p class="center">In the last week, there have been ${newCases} new cases and ${newDeaths} new deaths 
+                    related to COVID-19</p>
+                    `
+                )
                 console.log(`There have been ${newCases} new cases in the county of ${geoData.county} in the past week`)
                 console.log(`There have been ${newDeaths} new deaths in the county of ${geoData.county} in past week`)
             })

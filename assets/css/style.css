@@ -63,7 +63,7 @@ header h1 {
   margin: 0;
   padding: 0;
 }
-#city-holder {
+.bold {
   font-weight: bold;
 }
 

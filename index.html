@@ -19,7 +19,7 @@
           <ul>
 
               <li>
-                  <a href="#Whare-To-Travel">Whare To Travel</a>
+                  <a href="#Whare-To-Travel">Where To Travel</a>
               </li>
               <li>
                   <a href="#City-Weather">City Weather</a>
@@ -37,13 +37,19 @@
         <div class="col s12 m4">
           <div class="icon-block">
             <h2 class="center light-blue-text"><i class="material-icons">beach_access</i></h2>
-            <h5 class="center">Where to SafeTravel?</h5>
-            <form id="city-form" class="input-field col s6">
-              <label for="city">Please type your city:</label>
-              <input placeholder="City" id="city-input" type="text" class="validate">
-            </form>
-            <p class="light"><h6>Showing Results For:</h6></p>
-            <p class="light"><h6 id="city-holder"></h6></p>
+            <h5 class="center">Where would you like to travel?</h5>
+            <div class="row">
+              <div class="col s12 l6">
+                <form id="city-form" class="input-field">
+                  <label for="city" class="right">Destination (US only)</label>
+                  <input placeholder="City" id="city-input" type="text" class="validate right-align">
+                </form>
+              </div>
+              <div class="col l6 s12">
+                <p class="light"><h6>Showing Results For:</h6></p>
+                <p class="light"><h6 id="city-holder" class="bold"></h6></p>
+              </div>
+            </div>
           </div>
         </div>
         <div class="col s12 m4">
@@ -56,8 +62,10 @@
         <div class="col s12 m4">
           <div class="icon-block">
             <h2 class="center light-blue-text"><i class="material-icons">group</i></h2>
-            <h5 class="center">Covid Results</h5>
-            <p class="light">We will display Codiv Results.</p>
+            <h5 class="center">Covid Report</h5>
+            <div id="covid-results">
+              <p class="light center">Covid data is available at the county level</p>
+            </div>
           </div>
         </div>
       </div>
