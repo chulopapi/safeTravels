@@ -75,3 +75,11 @@ var fetchWeatherData = function(lat,lon) {
         }
     });
 };
+var cityInputHandler = function(event) {
+    event.preventDefault()
+    var searchField = $("#city-input")
+    fetchGeoData(searchField.val().trim())
+    searchField.val("")
+    searchField.blur()
+}
+$("#city-form").on("submit",cityInputHandler)
