@@ -63,3 +63,13 @@ header h1 {
   margin: 0;
   padding: 0;
 }
+#city-holder {
+  font-weight: bold;
+}
+
+/* overrides Materialize's default width of 70% */
+@media only screen and (min-width: 993px) {
+.container {
+    width: 85%;
+}
+}

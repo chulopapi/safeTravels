@@ -1,4 +1,3 @@
-
 var fetchGeoData = function(city) {
     // this function fetches geographic information based on what city the user searched for
     apiUrl = `https://us1.locationiq.com/v1/search.php?key=d743f42fb07378&q=${city}&format=json&countrycodes=us&limit=1&addressdetails=1`;
@@ -7,6 +6,7 @@ var fetchGeoData = function(city) {
         if (response.ok) {
             response.json().then(function(data){
                 console.log(data)
+                $("#city-holder").text(data[0].address.city)
                 fetchCovidData(data[0].address)
                 fetchWeatherData(data[0].lat,data[0].lon)
             })
@@ -17,7 +17,6 @@ var fetchGeoData = function(city) {
         }
     });
 };
-
 var fetchCovidData = function(geoData) {
     // will need a check to see  if the state is DC here later
     // url would be https://disease.sh/v3/covid-19/historical/usacounties/district%20of%20columbia?lastdays=7
@@ -58,7 +57,6 @@ var fetchCovidData = function(geoData) {
         }
     });
 };
-
 var fetchWeatherData = function(lat,lon) {
     // takes the latitude and longitude from the geo encoding call and uses them to fetch weather data
     apiUrl = `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&exclude=minutely,hourly&units=imperial&appid=d1cd3159572faa76d674791448dcb10b`;
