@@ -11,15 +11,18 @@ var fetchGeoData = function(city) {
                     data[0].address.state = "District of Columbia"
                     data[0].address.county = "District of Columbia"
                 }
-                $("#city-holder").text(data[0].address.city + ", " + data[0].address.state)
+                $("#city-holder").html(`<h6 class="light bold">${data[0].address.city }, ${data[0].address.state}</h6>`)
                 fetchCovidData(data[0].address)
                 fetchWeatherData(data[0].lat,data[0].lon)
             })
         }
         else {
-            // alert will be replaced with better user feedback later
-            alert("Search was not successful.")
-        }
+            $("#city-holder").html(
+                '<div class="valign-wrapper"> \
+                <span class="badge center white-text red lighten-2">Search Failed</span> \
+                </div>'
+            )
+            }
     });
 };
 var fetchCovidData = function(geoData) {
@@ -49,7 +52,7 @@ var fetchCovidData = function(geoData) {
                 var deaths = Object.values(countyCovidData.timeline.deaths)
                 var newCases = Math.max(...cases) - Math.min(...cases)
                 var newDeaths = Math.max(...deaths) - Math.min(...deaths)
-                // we're just logging the info for now, later we'll set this up to display on the page
+                // Display the results onto the page
                 $("#covid-results").html(
                     `
                     <h6 class="center"> Showing results for <span class ="bold">${geoData.county}</span></h6>
@@ -57,13 +60,14 @@ var fetchCovidData = function(geoData) {
                     related to COVID-19</p>
                     `
                 )
-                console.log(`There have been ${newCases} new cases in the county of ${geoData.county} in the past week`)
-                console.log(`There have been ${newDeaths} new deaths in the county of ${geoData.county} in past week`)
             })
         }
         else {
-            // alert will be replaced with better user feedback later
-            alert("Could not fetch covid information.")
+            $("#covid-results").html(
+                '<div class="valign-wrapper"> \
+                <span class="badge center white-text red lighten-2">Unable to fetch covid data.</span> \
+                </div>'
+            )
         }
     });
 };
