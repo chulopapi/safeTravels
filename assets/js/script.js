@@ -170,3 +170,7 @@ var cityInputHandler = function(event) {
     }
 }
 $("#city-form").on("submit",cityInputHandler)
+$(document).ready(function(){
+    $('.collapsible').collapsible();
+  });
+  $('.dropdown-trigger').dropdown();
