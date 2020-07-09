@@ -90,7 +90,33 @@ var fetchWeatherData = function(lat,lon) {
         if (response.ok) {
             response.json().then(function(weatherData){
                 console.log(weatherData)
-                current = weatherData.current
+                var current = weatherData.current
+                var forecast = weatherData.daily.slice(1)
+                var rain = false
+                var snow = false
+                var highTemp = null
+                var lowTemp = null
+                forecast.forEach(x => {
+                    if (x.rain) {
+                        rain = true
+                    }
+                    if (x.snow) {
+                        snow = true
+                    }
+                    if (x.temp.max > 85) {
+                        highTemp = "high"
+                    }
+                    if (x.temp.max > 99) {
+                        highTemp = "very high"
+                    }
+                    if (x.day < 35) {
+                        lowTemp = "low"
+                    }
+                    if (x.day < 1) {
+                        lowTemp = "very low"
+                    }
+                });
+                console.log("Rain:"+rain+", Snow:"+snow+", HighTemp:"+highTemp+", LowTemp:"+lowTemp)
                 $("#weather-results").html(`
                 <p>
                     Current Temperature: ${current.temp} °F
