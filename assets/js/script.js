@@ -5,7 +5,6 @@ var fetchGeoData = function(city) {
     .then(function(response){
         if (response.ok) {
             response.json().then(function(data){
-                console.log(data)
                 var address = data[0].address
                 // check if they searched for DC, adjust data if so
                 if (address.state === "Washington, D.C.") {
@@ -55,7 +54,9 @@ var fetchCovidData = function(geoData) {
                     }
                 }
                 if(!countyCovidData) {
-                    console.log("No covid information was found")
+                    $("#covid-results").html(`
+                    <p class="center"> No COVID data found. </p>
+                    `)
                     return
                 }
                 // This section parses the data from the covid results into more useful numbers
@@ -89,42 +90,33 @@ var fetchWeatherData = function(lat,lon) {
     .then(function(response){
         if (response.ok) {
             response.json().then(function(weatherData){
-                console.log(weatherData)
                 var current = weatherData.current
                 var forecast = weatherData.daily.slice(1)
-                var rain = false
-                var snow = false
-                var highTemp = null
-                var lowTemp = null
-                forecast.forEach(x => {
-                    if (x.rain) {
-                        rain = true
-                    }
-                    if (x.snow) {
-                        snow = true
-                    }
-                    if (x.temp.max > 85) {
-                        highTemp = "high"
-                    }
-                    if (x.temp.max > 99) {
-                        highTemp = "very high"
-                    }
-                    if (x.day < 35) {
-                        lowTemp = "low"
-                    }
-                    if (x.day < 1) {
-                        lowTemp = "very low"
-                    }
-                });
-                console.log("Rain:"+rain+", Snow:"+snow+", HighTemp:"+highTemp+", LowTemp:"+lowTemp)
-                $("#weather-results").html(`
+                results = $("#weather-results")
+                results.html(`
                 <p>
                     Current Temperature: ${current.temp} °F
                     <img src="https://openweathermap.org/img/wn/${current.weather[0].icon}.png" alt="">
                 </p>
                 <p> Current Windspeed: ${current.wind_speed} MPH </p>
-                <p> Current Humidity: ${current.humidity}%
+                <p> Current Humidity: ${current.humidity}% </p>
                 `)
+                parsedForecast = parseForecastData(forecast)
+                if (parsedForecast.rain) {
+                    results.append("<p>Rain is forecast in the next week.</p>")
+                }
+                if (parsedForecast.snow) {
+                    results.append("<p>Snow is forecast in the next week.</p>")
+                }
+                if (parsedForecast.highTemp) {
+                    results.append(`<p>Temperatures as high as ${parsedForecast.highTemp} °F are expected in the next week.</p>`)
+                }
+                if (parsedForecast.lowTemp) {
+                    results.append(`<p>Temperatures as low as ${parsedForecast.lowTemp} °F are expected in the next week.</p>`)
+                }
+                if (!parsedForecast.rain && !parsedForecast.snow && !parsedForecast.highTemp && !parsedForecast.lowTemp) {
+                    results.append("<p>No adverse weather conditions are forecast for the next week.</p>")
+                }
             })
         }
         else {
@@ -133,6 +125,41 @@ var fetchWeatherData = function(lat,lon) {
         }
     });
 };
+var parseForecastData = function(forecast) {
+    var forecastData = {
+        rain: false,
+        snow: false,
+        highTemp: [],
+        lowTemp: []
+    }
+    forecast.forEach(x => {
+        if (x.rain) {
+            forecastData.rain = true
+        }
+        if (x.snow) {
+            snow = true
+        }
+        if (x.temp.max >= 85) {
+            forecastData.highTemp.push(x.temp.max)
+        }
+        if (x.temp.day <= 35) {
+            forecastData.lowTemp.push(x.temp.day)
+        }
+    });
+    if (forecastData.highTemp[0]) {
+        forecastData.highTemp = Math.max(...forecastData.highTemp)
+    }
+    else {
+        forecastData.highTemp = null
+    }
+    if (forecastData.lowTemp[0]) {
+        forecastData.lowTemp = Math.min(...forecastData.lowTemp)
+    }
+    else {
+        forecastData.lowTemp = null
+    }
+    return forecastData
+}
 var cityInputHandler = function(event) {
     event.preventDefault()
     var searchField = $("#city-input")
