@@ -6,13 +6,24 @@ var fetchGeoData = function(city) {
         if (response.ok) {
             response.json().then(function(data){
                 console.log(data)
+                var address = data[0].address
                 // check if they searched for DC, adjust data if so
-                if (data[0].address.state === "Washington, D.C.") {
-                    data[0].address.state = "District of Columbia"
-                    data[0].address.county = "District of Columbia"
+                if (address.state === "Washington, D.C.") {
+                    address.state = "District of Columbia"
+                    address.county = "District of Columbia"
                 }
-                $("#city-holder").html(`<h6 class="light bold">${data[0].address.city }, ${data[0].address.state}</h6>`)
-                fetchCovidData(data[0].address)
+                // checks if city data is missing, if so checks for some other data types 
+                // and uses those instead
+                if (!address.city){
+                    if (address.village) {
+                        address.city = address.village
+                    }
+                    if (address.city_district) {
+                        address.city = address.city_district
+                    }
+                }
+                $("#city-holder").html(`<h6 class="light bold">${address.city }, ${address.state}</h6>`)
+                fetchCovidData(address)
                 fetchWeatherData(data[0].lat,data[0].lon)
             })
         }
@@ -77,8 +88,17 @@ var fetchWeatherData = function(lat,lon) {
     fetch(apiUrl)
     .then(function(response){
         if (response.ok) {
-            response.json().then(function(data){
-                console.log(data)
+            response.json().then(function(weatherData){
+                console.log(weatherData)
+                current = weatherData.current
+                $("#weather-results").html(`
+                <p>
+                    Current Temperature: ${current.temp} °F
+                    <img src="https://openweathermap.org/img/wn/${current.weather[0].icon}.png" alt="">
+                </p>
+                <p> Current Windspeed: ${current.wind_speed} MPH </p>
+                <p> Current Humidity: ${current.humidity}%
+                `)
             })
         }
         else {
@@ -90,8 +110,10 @@ var fetchWeatherData = function(lat,lon) {
 var cityInputHandler = function(event) {
     event.preventDefault()
     var searchField = $("#city-input")
-    fetchGeoData(searchField.val().trim())
-    searchField.val("")
-    searchField.blur()
+    if (searchField.val()){
+        fetchGeoData(searchField.val().trim())
+        searchField.val("")
+        searchField.blur()
+    }
 }
 $("#city-form").on("submit",cityInputHandler)
