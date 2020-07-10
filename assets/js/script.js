@@ -1,5 +1,10 @@
 var fetchGeoData = function(city) {
     // this function fetches geographic information based on what city the user searched for
+    if (city.toLowerCase() === "new york") {
+        // for some reason just sending "new york" to the API fetched results for New York, Missouri
+        // searching for a borough of NY,NY gets the correct info
+        city = "brooklyn"
+    }
     apiUrl = `https://us1.locationiq.com/v1/search.php?key=d743f42fb07378&city=${city}&format=json&countrycodes=us&limit=1&addressdetails=1`;
     fetch(apiUrl)
     .then(function(response){
@@ -21,9 +26,15 @@ var fetchGeoData = function(city) {
                         address.city = address.city_district
                     }
                 }
+                // displays the city's name to the page
                 $("#city-holder").html(`<h6 class="light bold">${address.city }, ${address.state}</h6>`)
+                // makes the weather and covid API calls
                 fetchCovidData(address)
                 fetchWeatherData(data[0].lat,data[0].lon)
+                // adds search 
+                if (address.city){
+                    saveSearch(address.city)
+                }
             })
         }
         else {
@@ -90,9 +101,11 @@ var fetchWeatherData = function(lat,lon) {
     .then(function(response){
         if (response.ok) {
             response.json().then(function(weatherData){
+                // get references to the useful parts of the API result 
                 var current = weatherData.current
                 var forecast = weatherData.daily.slice(1)
                 results = $("#weather-results")
+                // draw the current weather data to the page
                 results.html(`
                 <p>
                     Current Temperature: ${current.temp} °F
@@ -101,7 +114,9 @@ var fetchWeatherData = function(lat,lon) {
                 <p> Current Windspeed: ${current.wind_speed} MPH </p>
                 <p> Current Humidity: ${current.humidity}% </p>
                 `)
+                // passes the data for the next weeks' weather to a separate function to parse
                 parsedForecast = parseForecastData(forecast)
+                // display forecasted warnings to page
                 if (parsedForecast.rain) {
                     results.append("<p>Rain is forecast in the next week.</p>")
                 }
@@ -120,12 +135,17 @@ var fetchWeatherData = function(lat,lon) {
             })
         }
         else {
-            // alert will be replaced with better user feedback later
-            alert("There was a problem fetching the weather data.")
+            $("#weather-results").html(
+                '<div class="valign-wrapper"> \
+                <span class="badge center white-text red lighten-2">Unable to fetch weather data.</span> \
+                </div>'
+            )
         }
     });
 };
 var parseForecastData = function(forecast) {
+    // this function takes the forecasted weather data from the API call and
+    // formats the relevant data into an easily-referenced object
     var forecastData = {
         rain: false,
         snow: false,
@@ -160,6 +180,42 @@ var parseForecastData = function(forecast) {
     }
     return forecastData
 }
+var saveSearch = function(city) {
+    // get the array of previous searches from localstorage, set up an empty array if there's nothing there
+    var searchHistory = JSON.parse(localStorage.getItem("searchHistory"))
+    if (!searchHistory) {
+        searchHistory = []
+    }
+    // if the city is already in the list, escape the function early
+    if (searchHistory.includes(city)) {
+        return
+    }
+    // add the current search term to the front of the array then slice the array to 10 items
+    searchHistory.unshift(city)
+    searchHistory = searchHistory.slice(0,10)
+    // save the current array to localstorage then refresh the list on the page
+    localStorage.setItem("searchHistory",JSON.stringify(searchHistory))
+    drawSearchHistory()
+}
+// draws the search history to the page
+var drawSearchHistory = function() {
+    // get references to the search history and its target on the page
+    var searchHistory = JSON.parse(localStorage.getItem("searchHistory"))
+    var targetList = $("#previous-searches")
+    targetList.empty()
+    // add a placeholder if there's nothing to display
+    if (!searchHistory) {
+        targetList.append(`<li><a  class="grey-text center" href="#!">None</a></li>`)
+        return
+    }
+    // iterate through the search history and add a button for each item to the page
+    searchHistory.forEach(city => {
+        targetList.append(`<li><a  class="light-blue-text center" href="#!">${city}</a></li>`)
+    });
+}
+var searchButtonHanlder = function(event) {
+    fetchGeoData(event.target.textContent)
+}
 var cityInputHandler = function(event) {
     event.preventDefault()
     var searchField = $("#city-input")
@@ -169,4 +225,9 @@ var cityInputHandler = function(event) {
         searchField.blur()
     }
 }
+// event listeners
 $("#city-form").on("submit",cityInputHandler)
+$("#previous-searches").on("click",searchButtonHanlder)
+$('.dropdown-trigger').dropdown();
+// onload functions
+drawSearchHistory()
