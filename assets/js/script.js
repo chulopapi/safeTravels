@@ -1,5 +1,10 @@
 var fetchGeoData = function(city) {
     // this function fetches geographic information based on what city the user searched for
+    if (city.toLowerCase() === "new york") {
+        // for some reason just sending "new york" to the API fetched results for New York, Missouri
+        // searching for a borough of NY,NY gets the correct info
+        city = "brooklyn"
+    }
     apiUrl = `https://us1.locationiq.com/v1/search.php?key=d743f42fb07378&city=${city}&format=json&countrycodes=us&limit=1&addressdetails=1`;
     fetch(apiUrl)
     .then(function(response){
@@ -188,6 +193,9 @@ var drawSearchHistory = function() {
         targetList.append(`<li><a  class="light-blue-text center" href="#!">${city}</a></li>`)
     });
 }
+var searchButtonHanlder = function(event) {
+    fetchGeoData(event.target.textContent)
+}
 var cityInputHandler = function(event) {
     event.preventDefault()
     var searchField = $("#city-input")
@@ -198,5 +206,6 @@ var cityInputHandler = function(event) {
     }
 }
 $("#city-form").on("submit",cityInputHandler)
+$("#previous-searches").on("click",searchButtonHanlder)
 $('.dropdown-trigger').dropdown();
 drawSearchHistory()
