@@ -24,6 +24,7 @@ var fetchGeoData = function(city) {
                 $("#city-holder").html(`<h6 class="light bold">${address.city }, ${address.state}</h6>`)
                 fetchCovidData(address)
                 fetchWeatherData(data[0].lat,data[0].lon)
+                saveSearch(address.city)
             })
         }
         else {
@@ -160,6 +161,20 @@ var parseForecastData = function(forecast) {
     }
     return forecastData
 }
+var saveSearch = function(city) {
+    searchHistory = JSON.parse(localStorage.getItem("searchHistory"))
+    console.log(searchHistory)
+    if (!searchHistory) {
+        searchHistory = []
+    }
+    if (searchHistory.includes(city)) {
+        return
+    }
+    console.log(searchHistory)
+    searchHistory.unshift(city)
+    searchHistory = searchHistory.slice(0,10)
+    localStorage.setItem("searchHistory",JSON.stringify(searchHistory))
+}
 var cityInputHandler = function(event) {
     event.preventDefault()
     var searchField = $("#city-input")
@@ -170,7 +185,4 @@ var cityInputHandler = function(event) {
     }
 }
 $("#city-form").on("submit",cityInputHandler)
-$(document).ready(function(){
-    $('.collapsible').collapsible();
-  });
-  $('.dropdown-trigger').dropdown();
+$('.dropdown-trigger').dropdown();
