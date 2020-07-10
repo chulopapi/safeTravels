@@ -24,7 +24,9 @@ var fetchGeoData = function(city) {
                 $("#city-holder").html(`<h6 class="light bold">${address.city }, ${address.state}</h6>`)
                 fetchCovidData(address)
                 fetchWeatherData(data[0].lat,data[0].lon)
-                saveSearch(address.city)
+                if (address.city){
+                    saveSearch(address.city)
+                }
             })
         }
         else {
@@ -162,18 +164,29 @@ var parseForecastData = function(forecast) {
     return forecastData
 }
 var saveSearch = function(city) {
-    searchHistory = JSON.parse(localStorage.getItem("searchHistory"))
-    console.log(searchHistory)
+    var searchHistory = JSON.parse(localStorage.getItem("searchHistory"))
     if (!searchHistory) {
         searchHistory = []
     }
     if (searchHistory.includes(city)) {
         return
     }
-    console.log(searchHistory)
     searchHistory.unshift(city)
     searchHistory = searchHistory.slice(0,10)
     localStorage.setItem("searchHistory",JSON.stringify(searchHistory))
+    drawSearchHistory()
+}
+var drawSearchHistory = function() {
+    var searchHistory = JSON.parse(localStorage.getItem("searchHistory"))
+    var targetList = $("#previous-searches")
+    targetList.empty()
+    if (!searchHistory) {
+        targetList.append(`<li><a  class="grey-text center" href="#!">None</a></li>`)
+        return
+    }
+    searchHistory.forEach(city => {
+        targetList.append(`<li><a  class="light-blue-text center" href="#!">${city}</a></li>`)
+    });
 }
 var cityInputHandler = function(event) {
     event.preventDefault()
@@ -186,3 +199,4 @@ var cityInputHandler = function(event) {
 }
 $("#city-form").on("submit",cityInputHandler)
 $('.dropdown-trigger').dropdown();
+drawSearchHistory()
