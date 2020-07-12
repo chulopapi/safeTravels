@@ -15,7 +15,8 @@
 
 header {
   padding: 60px 70px;
-  background-color:#4BA7EE;
+  /*background-color:#4BA7EE;*/
+  background-color: orange;
   justify-content: space-between;
   flex-wrap: wrap;
 }
@@ -28,6 +29,7 @@ header h1 {
 header a {
   text-decoration: none;
   color:white;
+  text-align: right;
 }
 header nav {
  /* float: right; */
@@ -58,6 +60,7 @@ header h1 {
   color: #fce138;
   margin: 0;
   display: inline;
+  text-align: right;
 }
 * {
   margin: 0;
